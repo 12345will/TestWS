@@ -5,7 +5,7 @@ import pandas as pd
 from newspaper import Article
 
 # Access SerpAPI key from Streamlit secrets
-SERPAPI_API_KEY = st.secrets["SERPAPI_API_KEY"]
+SERPAPI_API_KEY = st.secrets["5cf28550f7b9cb1fb61d5634695e1d8aa7af693b1656602ee95600bdc07ba0ad"]
 
 # Risk keywords with severity weights
 risk_keywords = {
