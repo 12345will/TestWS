@@ -121,15 +121,15 @@ elif st.button("Run Risk Comparison"):
                 df = pd.DataFrame(articles)
                 avg_score = df["Weighted Risk Score"].mean()
                 summary.append({
-    "Supplier": supplier,
-    "Labor Avg": round(df["Labor Risk"].mean(), 2),
-    "Environmental Avg": round(df["Environmental Risk"].mean(), 2),
-    "Governance Avg": round(df["Governance Risk"].mean(), 2),
-    "Avg Risk Score": round(df["Weighted Risk Score"].mean(), 2),
-    "Worst Article Score": df["Weighted Risk Score"].max(),
-    "Best Article Score": df["Weighted Risk Score"].min(),
-    "Article Count": len(df)
-})
+                    "Supplier": supplier,
+                    "Labor Avg": round(df["Labor Risk"].mean(), 2),
+                    "Environmental Avg": round(df["Environmental Risk"].mean(), 2),
+                    "Governance Avg": round(df["Governance Risk"].mean(), 2),
+                    "Avg Risk Score": round(df["Weighted Risk Score"].mean(), 2),
+                    "Worst Article Score": df["Weighted Risk Score"].max(),
+                    "Best Article Score": df["Weighted Risk Score"].min(),
+                    "Article Count": len(df)
+                })
                 st.dataframe(df.sort_values(by="Weighted Risk Score", ascending=False))
             else:
                 st.warning(f"No articles found for {supplier}.")
@@ -148,11 +148,11 @@ elif st.button("Run Risk Comparison"):
             return "❌"
 
     for _, row in summary_df.iterrows():
-        st.markdown(f"""\
+        st.markdown(f"""
 ### 🔍 {row['Supplier']}
-- **Labor Risk:** {row['Labor Avg']} / 10
-- **Environmental Risk:** {row['Environmental Avg']} / 10
-- **Governance Risk:** {row['Governance Avg']} / 10
+- **Labor Risk:** {row['Labor Avg']} / 10  
+- **Environmental Risk:** {row['Environmental Avg']} / 10  
+- **Governance Risk:** {row['Governance Avg']} / 10  
 - **→ Total Weighted Risk Score:** **{row['Avg Risk Score']} / 10** {interpret(row['Avg Risk Score'])}
 """)
 
