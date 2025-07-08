@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from textblob import TextBlob
 import pandas as pd
-from newspaper import Article
+from bs4 import BeautifulSoup
 
 # Access SerpAPI key from Streamlit secrets
 SERPAPI_API_KEY = st.secrets["5cf28550f7b9cb1fb61d5634695e1d8aa7af693b1656602ee95600bdc07ba0ad"]
@@ -59,10 +59,12 @@ risk_keywords = {
 
 def get_full_text(url):
     try:
-        article = Article(url)
-        article.download()
-        article.parse()
-        return article.text
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(url, headers=headers, timeout=10)
+        soup = BeautifulSoup(response.content, "html.parser")
+        paragraphs = soup.find_all('p')
+        text = " ".join([p.get_text() for p in paragraphs])
+        return text
     except:
         return ""
 
