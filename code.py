@@ -2,49 +2,95 @@ import streamlit as st
 import requests
 from textblob import TextBlob
 import pandas as pd
+from newspaper import Article
 
-# Define your SerpAPI key here
-SERPAPI_API_KEY = "5cf28550f7b9cb1fb61d5634695e1d8aa7af693b1656602ee95600bdc07ba0ad"  # Replace with your actual API key
+# Access SerpAPI key from Streamlit secrets
+SERPAPI_API_KEY = st.secrets["SERPAPI_API_KEY"]
 
-# Risk keywords by category
+# Risk keywords with severity weights
 risk_keywords = {
-    "labor": [
-        "child labor", "forced labor", "unsafe working conditions", "low wages", "wage theft", "long hours", "no union", "union suppression",
-        "worker abuse", "discrimination", "exploitation", "labor violations", "migrant worker abuse", "hazardous working conditions"
-    ],
-    "environment": [
-        "pollution", "deforestation", "water contamination", "toxic waste", "oil spill", "emissions violation", "ecosystem destruction",
-        "environmental damage", "climate impact", "greenhouse gas emissions", "chemical spill", "air quality issues", "illegal dumping"
-    ],
-    "governance": [
-        "sanctions", "fraud", "corruption", "bribery", "money laundering", "regulatory violation", "fines", "illegal practices",
-        "lack of transparency", "anti-competitive behavior", "governance failure", "whistleblower retaliation", "non-compliance"
-    ]
+    "labor": {
+        "child labor": 3,
+        "forced labor": 3,
+        "unsafe working conditions": 2,
+        "low wages": 1,
+        "wage theft": 2,
+        "long hours": 1,
+        "no union": 1,
+        "union suppression": 2,
+        "worker abuse": 2,
+        "discrimination": 1,
+        "exploitation": 2,
+        "labor violations": 2,
+        "migrant worker abuse": 2,
+        "hazardous working conditions": 2
+    },
+    "environment": {
+        "pollution": 2,
+        "deforestation": 3,
+        "water contamination": 2,
+        "toxic waste": 3,
+        "oil spill": 3,
+        "emissions violation": 2,
+        "ecosystem destruction": 3,
+        "environmental damage": 2,
+        "climate impact": 2,
+        "greenhouse gas emissions": 2,
+        "chemical spill": 2,
+        "air quality issues": 1,
+        "illegal dumping": 2
+    },
+    "governance": {
+        "sanctions": 2,
+        "fraud": 3,
+        "corruption": 3,
+        "bribery": 3,
+        "money laundering": 3,
+        "regulatory violation": 2,
+        "fines": 1,
+        "illegal practices": 2,
+        "lack of transparency": 2,
+        "anti-competitive behavior": 2,
+        "governance failure": 2,
+        "whistleblower retaliation": 2,
+        "non-compliance": 2
+    }
 }
 
-def assess_article(title, snippet, weights):
-    text = f"{title} {snippet}".lower()
-    sentiment = TextBlob(text).sentiment.polarity
+def get_full_text(url):
+    try:
+        article = Article(url)
+        article.download()
+        article.parse()
+        return article.text
+    except:
+        return ""
 
-    risk_counts = {k: 0 for k in risk_keywords}
-    for category, keywords in risk_keywords.items():
-        for kw in keywords:
-            if kw in text:
-                risk_counts[category] += 1
+def assess_article(title, snippet, url, weights):
+    full_text = get_full_text(url)
+    combined_text = f"{title} {snippet} {full_text}".lower()
+    sentiment = TextBlob(combined_text).sentiment.polarity
+
+    risk_scores = {k: 0 for k in risk_keywords}
+    for category, terms in risk_keywords.items():
+        for kw, severity in terms.items():
+            if kw in combined_text:
+                risk_scores[category] += severity
 
     weighted_score = (
-        risk_counts["labor"] * weights["labor"] +
-        risk_counts["environment"] * weights["environment"] +
-        risk_counts["governance"] * weights["governance"]
+        risk_scores["labor"] * weights["labor"] +
+        risk_scores["environment"] * weights["environment"] +
+        risk_scores["governance"] * weights["governance"]
     ) / 100
 
     return {
         "Title": title,
-        "Labor Risk": risk_counts["labor"],
-        "Environmental Risk": risk_counts["environment"],
-        "Governance Risk": risk_counts["governance"],
+        "Labor Risk": risk_scores["labor"],
+        "Environmental Risk": risk_scores["environment"],
+        "Governance Risk": risk_scores["governance"],
         "Sentiment": sentiment,
-        "Weighted Risk Score": weighted_score
+        "Weighted Risk Score": weighted_score,
+        "URL": url
     }
 
 def search_articles(query):
@@ -59,7 +105,7 @@ def search_articles(query):
 
 st.set_page_config(page_title="Supplier Risk Assessment Tool", layout="wide")
 st.title("🔍 Supplier Risk Assessment Tool")
-st.markdown("This tool lets you assess reputational risk of suppliers based on online news sources.")
+st.markdown("This tool assesses reputational risk of suppliers by analyzing full article content.")
 
 company = st.text_input("Enter Supplier/Company Name", placeholder="e.g., Glencore")
 material = st.text_input("Enter Material/Commodity", placeholder="e.g., cobalt")
@@ -95,8 +141,7 @@ else:
                 title = result.get("title", "")
                 snippet = result.get("snippet", "")
                 url = result.get("link", "")
-                analysis = assess_article(title, snippet, weights)
-                analysis["URL"] = url
+                analysis = assess_article(title, snippet, url, weights)
                 data.append(analysis)
 
             if data:
