@@ -8,9 +8,18 @@ SERPAPI_API_KEY = "5cf28550f7b9cb1fb61d5634695e1d8aa7af693b1656602ee95600bdc07ba
 
 # Risk keywords by category
 risk_keywords = {
-    "labor": ["child labor", "forced labor", "unsafe working conditions"],
-    "environment": ["pollution", "deforestation", "water contamination"],
-    "governance": ["sanctions", "fraud", "corruption"]
+    "labor": [
+        "child labor", "forced labor", "unsafe working conditions", "low wages", "wage theft", "long hours", "no union", "union suppression",
+        "worker abuse", "discrimination", "exploitation", "labor violations", "migrant worker abuse", "hazardous working conditions"
+    ],
+    "environment": [
+        "pollution", "deforestation", "water contamination", "toxic waste", "oil spill", "emissions violation", "ecosystem destruction",
+        "environmental damage", "climate impact", "greenhouse gas emissions", "chemical spill", "air quality issues", "illegal dumping"
+    ],
+    "governance": [
+        "sanctions", "fraud", "corruption", "bribery", "money laundering", "regulatory violation", "fines", "illegal practices",
+        "lack of transparency", "anti-competitive behavior", "governance failure", "whistleblower retaliation", "non-compliance"
+    ]
 }
 
 def assess_article(title, snippet, weights):
@@ -71,7 +80,7 @@ else:
         if not company or not material:
             st.error("Please enter both a company and material.")
         else:
-            query = f"{company} {material} ESG human rights labor pollution site:news.google.com"
+            query = f"{company} {material} ESG human rights labor pollution"
             st.write(f"Searching for: `{query}`")
 
             results = search_articles(query)
