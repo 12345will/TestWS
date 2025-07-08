@@ -1,2 +1,4 @@
-# TestWS
-Webscrape det by pref
+streamlit
+requests
+textblob
+pandas
