@@ -135,27 +135,27 @@ elif st.button("Run Risk Comparison"):
                 st.warning(f"No articles found for {supplier}.")
 
         if summary:
-    st.markdown("## 🧾 Final Supplier Risk Summary (Avg Score Weighted by Category)")
-    summary_df = pd.DataFrame(summary).sort_values("Avg Risk Score")
+            st.markdown("## 🧾 Final Supplier Risk Summary (Avg Score Weighted by Category)")
+            summary_df = pd.DataFrame(summary).sort_values("Avg Risk Score")
 
     # Emoji flags based on score
-    def interpret(score):
-        if score <= 5.5:
-            return "✅"
-        elif score <= 7:
-            return "⚠️"
-        else:
-            return "❌"
+            def interpret(score):
+                if score <= 5.5:
+                    return "✅"
+                elif score <= 7:
+                    return "⚠️"
+                else:
+                    return "❌"
+        
+            for _, row in summary_df.iterrows():
+                st.markdown(f"""
+        ### 🔍 {row['Supplier']}
+        - **Labor Risk:** {row['Labor Avg']} / 10  
+        - **Environmental Risk:** {row['Environmental Avg']} / 10  
+        - **Governance Risk:** {row['Governance Avg']} / 10  
+        - **→ Total Weighted Risk Score:** **{row['Avg Risk Score']} / 10** {interpret(row['Avg Risk Score'])}
+        """)
 
-    for _, row in summary_df.iterrows():
-        st.markdown(f"""
-### 🔍 {row['Supplier']}
-- **Labor Risk:** {row['Labor Avg']} / 10  
-- **Environmental Risk:** {row['Environmental Avg']} / 10  
-- **Governance Risk:** {row['Governance Avg']} / 10  
-- **→ Total Weighted Risk Score:** **{row['Avg Risk Score']} / 10** {interpret(row['Avg Risk Score'])}
-""")
-
-    st.markdown("### 🏁 **Final Ranking (Lowest to Highest Risk):**")
-    for i, row in summary_df.iterrows():
-        st.write(f"{i+1}. **{row['Supplier']}** — Score: {row['Avg Risk Score']} {interpret(row['Avg Risk Score'])}")
+            st.markdown("### 🏁 **Final Ranking (Lowest to Highest Risk):**")
+            for i, row in summary_df.iterrows():
+                st.write(f"{i+1}. **{row['Supplier']}** — Score: {row['Avg Risk Score']} {interpret(row['Avg Risk Score'])}")
