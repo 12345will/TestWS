@@ -121,19 +121,41 @@ elif st.button("Run Risk Comparison"):
                 df = pd.DataFrame(articles)
                 avg_score = df["Weighted Risk Score"].mean()
                 summary.append({
-                    "Supplier": supplier,
-                    "Avg Risk Score": round(avg_score, 2),
-                    "Worst Article Score": df["Weighted Risk Score"].max(),
-                    "Best Article Score": df["Weighted Risk Score"].min(),
-                    "Article Count": len(df)
-                })
+    "Supplier": supplier,
+    "Labor Avg": round(df["Labor Risk"].mean(), 2),
+    "Environmental Avg": round(df["Environmental Risk"].mean(), 2),
+    "Governance Avg": round(df["Governance Risk"].mean(), 2),
+    "Avg Risk Score": round(df["Weighted Risk Score"].mean(), 2),
+    "Worst Article Score": df["Weighted Risk Score"].max(),
+    "Best Article Score": df["Weighted Risk Score"].min(),
+    "Article Count": len(df)
+})
                 st.dataframe(df.sort_values(by="Weighted Risk Score", ascending=False))
             else:
                 st.warning(f"No articles found for {supplier}.")
 
         if summary:
-            st.markdown("## 📊 Supplier Comparison Summary")
-            summary_df = pd.DataFrame(summary).sort_values("Avg Risk Score")
-            st.dataframe(summary_df, use_container_width=True)
-            best = summary_df.iloc[0]
-            st.success(f"✅ Best supplier based on risk score: **{best['Supplier']}** with average score {best['Avg Risk Score']}")
+    st.markdown("## 🧾 Final Supplier Risk Summary (Avg Score Weighted by Category)")
+    summary_df = pd.DataFrame(summary).sort_values("Avg Risk Score")
+
+    # Emoji flags based on score
+    def interpret(score):
+        if score <= 5.5:
+            return "✅"
+        elif score <= 7:
+            return "⚠️"
+        else:
+            return "❌"
+
+    for _, row in summary_df.iterrows():
+        st.markdown(f"""\
+### 🔍 {row['Supplier']}
+- **Labor Risk:** {row['Labor Avg']} / 10
+- **Environmental Risk:** {row['Environmental Avg']} / 10
+- **Governance Risk:** {row['Governance Avg']} / 10
+- **→ Total Weighted Risk Score:** **{row['Avg Risk Score']} / 10** {interpret(row['Avg Risk Score'])}
+""")
+
+    st.markdown("### 🏁 **Final Ranking (Lowest to Highest Risk):**")
+    for i, row in summary_df.iterrows():
+        st.write(f"{i+1}. **{row['Supplier']}** — Score: {row['Avg Risk Score']} {interpret(row['Avg Risk Score'])}")
