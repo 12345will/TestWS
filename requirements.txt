@@ -2,3 +2,4 @@ streamlit
 requests
 textblob
 pandas
+newspaper3k
