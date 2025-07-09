@@ -4,8 +4,6 @@ from textblob import TextBlob
 import pandas as pd
 from bs4 import BeautifulSoup
 
-SERPAPI_API_KEY = "5cf28550f7b9cb1fb61d5634695e1d8aa7af693b1656602ee95600bdc07ba0ad"
-
 risk_keywords = {
     "labor": {
         "child labor": 3, "forced labor": 3, "unsafe working conditions": 2, "low wages": 1,
@@ -29,14 +27,15 @@ risk_keywords = {
 
 def get_full_text(url):
     try:
-        headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.content, "html.parser")
-        paragraphs = soup.find_all('p')
-        text = " ".join([p.get_text() for p in paragraphs])
-        return text
-    except:
+        DIFFBOT_TOKEN = "070489d54ba6e1dbb01ff6c8ca766530"
+        api_url = f"https://api.diffbot.com/v3/article?token={DIFFBOT_TOKEN}&url={url}"
+        response = requests.get(api_url, timeout=10)
+        data = response.json()
+        if "objects" in data and len(data["objects"]) > 0:
+            return data["objects"][0].get("text", "")
         return ""
+    except Exception as e:
+        return f"[Error extracting article text: {e}]"
 
 def assess_article(title, snippet, url, weights):
     full_text = get_full_text(url)
