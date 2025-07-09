@@ -2,6 +2,12 @@ import streamlit as st
 import requests
 from textblob import TextBlob
 import pandas as pd
+import nltk
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
 
 # --- Risk Keywords ---
 risk_keywords = {
