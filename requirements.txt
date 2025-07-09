@@ -5,4 +5,3 @@ pandas
 beautifulsoup4
 lxml
 spacy
-spacy[lookups]
