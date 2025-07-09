@@ -3,3 +3,5 @@ pandas
 requests
 textblob
 spacy
+beautifulsoup4
+lxml
