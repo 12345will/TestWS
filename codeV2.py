@@ -8,10 +8,12 @@ risk_keywords = {
     "labor": {
         "child labor": 3, "forced labor": 3, "bonded labor": 3, "modern slavery": 3,
         "human trafficking": 3, "unsafe working conditions": 2, "low wages": 1,
-        "wage theft": 2, "long working hours": 1, "no union": 1, "union suppression": 2,
-        "anti-union practices": 2, "worker abuse": 2, "discrimination": 1,
-        "gender-based violence": 2, "sexual harassment": 2, "exploitation": 2,
-        "labor violations": 2, "migrant worker abuse": 2, "hazardous working conditions": 2,
+        "wage theft": 2, "long working hours": 1, "long hours": 1,
+        "no union": 1, "union suppression": 2, "anti-union practices": 2,
+        "worker abuse": 2, "discrimination": 1, "gender-based violence": 2,
+        "sexual harassment": 2, "exploitation": 2, "labor violations": 2,
+        "migrant worker abuse": 2, "hazardous working conditions": 2,
+        "worker deaths": 3, "occupational hazard": 2, "factory collapse": 3,
         "temporary contracts": 1, "unpaid overtime": 2, "lack of health insurance": 1,
         "retaliation": 2
     },
@@ -20,10 +22,12 @@ risk_keywords = {
         "deforestation": 3, "biodiversity loss": 3, "habitat destruction": 3,
         "water contamination": 2, "toxic waste": 3, "oil spill": 3, "chemical spill": 2,
         "emissions violation": 2, "illegal logging": 3, "ecosystem destruction": 3,
-        "climate impact": 2, "greenhouse gas emissions": 2, "carbon emissions": 2,
-        "methane emissions": 2, "illegal dumping": 2, "waste mismanagement": 1,
-        "overconsumption": 1, "excessive packaging": 1, "resource depletion": 2,
-        "water overuse": 2, "negative impact": 3
+        "environmental damage": 2, "climate impact": 2, "greenhouse gas emissions": 2,
+        "carbon emissions": 2, "methane emissions": 2, "illegal dumping": 2,
+        "waste mismanagement": 1, "overconsumption": 1, "excessive packaging": 1,
+        "resource depletion": 2, "water overuse": 2, "tailings dam": 3,
+        "dam collapse": 3, "brumadinho": 3, "toxic sludge": 3,
+        "mining disaster": 3, "environmental catastrophe": 3, "negative impact": 3
     },
     "governance": {
         "sanctions": 2, "fraud": 3, "accounting fraud": 3, "corruption": 3,
@@ -33,9 +37,12 @@ risk_keywords = {
         "whistleblower retaliation": 2, "non-compliance": 2,
         "anti-competitive behavior": 2, "insider trading": 2,
         "misleading reporting": 2, "data breach": 2, "privacy violation": 2,
-        "cybersecurity failure": 2, "board conflicts of interest": 2
+        "cybersecurity failure": 2, "board conflicts of interest": 2,
+        "lawsuit": 2, "settlement": 2, "criminal charges": 3,
+        "investigation": 2, "stock manipulation": 3
     }
 }
+
 
 
 # --- Diffbot Article Extractor ---
@@ -143,7 +150,9 @@ elif st.button("Run Risk Assessment"):
             url = result.get("link", "")
             snippet = result.get("snippet", "")
             assessment = assess_article(title, snippet, url, weights)
-            articles.append(assessment)
+            if assessment["Weighted Risk Score"] > 0:
+                articles.append(assessment)
+
 
         if articles:
             df = pd.DataFrame(articles)
