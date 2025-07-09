@@ -3,6 +3,8 @@ import requests
 from textblob import TextBlob
 import pandas as pd
 import spacy
+import setup
+
 
 # Load spaCy NLP model
 nlp = spacy.load("en_core_web_sm")
