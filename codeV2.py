@@ -68,6 +68,22 @@ def assess_article(title, snippet, url, weights):
         "Title": title
     }
 
+GOOGLE_API_KEY = "AIzaSyCEWC7rZUu8EDPFeVtNsWrsdBv0HVcJ_dg"
+CSE_ID = "57a79da21c554499f"
+
+def search_articles(query):
+    url = "https://cse.google.com/cse?cx=57a79da21c554499f"
+    params = {
+        "key": GOOGLE_API_KEY,
+        "cx": CSE_ID,
+        "q": query,
+        "num": 10
+    }
+    response = requests.get(url, params=params)
+    results = response.json().get("items", [])
+    return [{"title": item["title"], "link": item["link"], "snippet": item.get("snippet", "")} for item in results]
+
+
 def search_articles(query):
     params = {
         "q": query,
