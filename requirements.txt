@@ -2,6 +2,6 @@ streamlit
 pandas
 requests
 textblob
-spacy
+nltk
 beautifulsoup4
 lxml
