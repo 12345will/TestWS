@@ -3,11 +3,16 @@ import requests
 from textblob import TextBlob
 import pandas as pd
 import nltk
+
+# --- Ensure NLTK corpora for TextBlob ---
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
     nltk.download('punkt')
-
+    nltk.download('averaged_perceptron_tagger')
+    nltk.download('brown')
+    nltk.download('wordnet')
+    nltk.download('vader_lexicon')
 
 # --- Risk Keywords ---
 risk_keywords = {
@@ -48,8 +53,6 @@ risk_keywords = {
         "investigation": 2, "stock manipulation": 3
     }
 }
-
-
 
 # --- Diffbot Article Extractor ---
 def get_full_text(url):
@@ -118,7 +121,7 @@ def search_articles(query):
         print("Error fetching search results:", e)
         return []
 
-# --- Streamlit App UI ---
+# --- Streamlit App ---
 st.set_page_config(page_title="Supplier Risk Assessment Tool", layout="wide")
 st.title("🔍 Supplier Risk Assessment Tool")
 
@@ -159,7 +162,6 @@ elif st.button("Run Risk Assessment"):
             if assessment["Weighted Risk Score"] > 0:
                 articles.append(assessment)
 
-
         if articles:
             df = pd.DataFrame(articles)
             st.markdown("### 📰 Assessed Articles")
@@ -176,4 +178,4 @@ elif st.button("Run Risk Assessment"):
 - **→ Total Weighted Risk Score:** **{avg_risk} / 10** {interpret(avg_risk)}
 """)
         else:
-            st.warning(f"No articles found for {supplier}.")
+            st.warning(f"No high-risk articles found for {supplier}.")
