@@ -27,24 +27,6 @@ risk_keywords = {
     }
 }
 
-def search_bhrrc(company_name, max_results=5):
-    query = company_name.replace(" ", "+")
-    url = f"https://www.business-humanrights.org/en/latest-news/?q={query}"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.text, "html.parser")
-        articles = soup.select(".search-result__title")[:max_results]
-        results = []
-
-        for article in articles:
-            title = article.get_text(strip=True)
-            link = "https://www.business-humanrights.org" + article.find("a")["href"]
-            results.append({"title": title, "url": link})
-        return results
-    except Exception as e:
-        return []
-
 def get_full_text(url):
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
@@ -93,6 +75,7 @@ def search_articles(query):
     response = requests.get("https://serpapi.com/search", params=params)
     return response.json().get("organic_results", [])
 
+# Streamlit app
 st.set_page_config(page_title="Supplier Risk Assessment Tool", layout="wide")
 st.title("🔍 Supplier Risk Assessment Tool")
 
@@ -102,11 +85,11 @@ material = st.text_input("Enter material (e.g., cobalt, lithium):")
 st.markdown("### Set Risk Weightings (Total must equal 100%)")
 col1, col2, col3 = st.columns(3)
 with col1:
-    labor_weight = st.slider("Labor Risk %", 0, 100, 40)
+    labor_weight = st.slider("Labor Risk %", 0, 100, 40, step=5)
 with col2:
-    env_weight = st.slider("Environmental Risk %", 0, 100, 30)
+    env_weight = st.slider("Environmental Risk %", 0, 100, 30, step=5)
 with col3:
-    gov_weight = st.slider("Governance Risk %", 0, 100, 30)
+    gov_weight = st.slider("Governance Risk %", 0, 100, 30, step=5)
 
 if labor_weight + env_weight + gov_weight != 100:
     st.warning("⚠️ Weights must total 100%.")
@@ -127,18 +110,10 @@ elif st.button("Run Risk Assessment"):
 
         for result in results:
             title = result.get("title", "")
-            snippet = result.get("snippet", "")
             url = result.get("link", "")
+            snippet = result.get("snippet", "") or ""
             assessment = assess_article(title, snippet, url, weights)
             articles.append(assessment)
-
-        bhrrc_results = search_bhrrc(supplier)
-        bhrrc_count = len(bhrrc_results)
-        bhrrc_flag = "✅"
-        if bhrrc_count >= 3:
-            bhrrc_flag = "🟥"
-        elif bhrrc_count >= 1:
-            bhrrc_flag = "🟨"
 
         if articles:
             df = pd.DataFrame(articles)
@@ -153,14 +128,7 @@ elif st.button("Run Risk Assessment"):
 - **Labor Risk (avg):** {round(df["Labor Risk"].mean(), 2)} / 10  
 - **Environmental Risk (avg):** {round(df["Environmental Risk"].mean(), 2)} / 10  
 - **Governance Risk (avg):** {round(df["Governance Risk"].mean(), 2)} / 10  
-- **→ Total Weighted Risk Score:** **{avg_risk} / 10** {interpret(avg_risk)}  
-- **BHRRC Mentions:** {bhrrc_flag}
+- **→ Total Weighted Risk Score:** **{avg_risk} / 10** {interpret(avg_risk)}
 """)
-            if bhrrc_results:
-                st.markdown("**🔗 BHRRC Mentions:**")
-                for entry in bhrrc_results:
-                    st.markdown(f"- [{entry['title']}]({entry['url']})")
-            else:
-                st.markdown("**🔗 BHRRC Mentions:** None found")
         else:
             st.warning(f"No articles found for {supplier}.")
