@@ -4,6 +4,10 @@ from textblob import TextBlob
 import pandas as pd
 from bs4 import BeautifulSoup
 
+
+SERPAPI_API_KEY = "5cf28550f7b9cb1fb61d5634695e1d8aa7af693b1656602ee95600bdc07ba0ad"
+
+
 risk_keywords = {
     "labor": {
         "child labor": 3, "forced labor": 3, "unsafe working conditions": 2, "low wages": 1,
