@@ -10,8 +10,6 @@ except OSError:
     download("en_core_web_sm")
     nlp = spacy.load("en_core_web_sm")
 
-import setup
-
 
 # Load spaCy NLP model
 nlp = spacy.load("en_core_web_sm")
