@@ -184,7 +184,7 @@ elif st.button("Run Risk Comparison"):
 - **BHRRC Mentions:** {row['BHRRC Mentions']}
 """)
 
-             st.markdown("### 🏁 **Final Ranking (Lowest to Highest Risk):**")
+            st.markdown("### 🏁 **Final Ranking (Lowest to Highest Risk):**")
             for i, row in summary_df.iterrows():
                 st.write(f"{i+1}. **{row['Supplier']}** — Score: {row['Avg Risk Score']} {interpret(row['Avg Risk Score'])} | BHRRC: {row['BHRRC Mentions']}")
                 
