@@ -6,24 +6,37 @@ import pandas as pd
 # --- Risk Keywords ---
 risk_keywords = {
     "labor": {
-        "child labor": 3, "forced labor": 3, "unsafe working conditions": 2, "low wages": 1,
-        "wage theft": 2, "long hours": 1, "no union": 1, "union suppression": 2,
-        "worker abuse": 2, "discrimination": 1, "exploitation": 2, "labor violations": 2,
-        "migrant worker abuse": 2, "hazardous working conditions": 2
+        "child labor": 3, "forced labor": 3, "bonded labor": 3, "modern slavery": 3,
+        "human trafficking": 3, "unsafe working conditions": 2, "low wages": 1,
+        "wage theft": 2, "long working hours": 1, "no union": 1, "union suppression": 2,
+        "anti-union practices": 2, "worker abuse": 2, "discrimination": 1,
+        "gender-based violence": 2, "sexual harassment": 2, "exploitation": 2,
+        "labor violations": 2, "migrant worker abuse": 2, "hazardous working conditions": 2,
+        "temporary contracts": 1, "unpaid overtime": 2, "lack of health insurance": 1,
+        "retaliation": 2
     },
     "environment": {
-        "pollution": 2, "deforestation": 3, "water contamination": 2, "toxic waste": 3,
-        "oil spill": 3, "emissions violation": 2, "ecosystem destruction": 3,
-        "environmental damage": 2, "climate impact": 2, "greenhouse gas emissions": 2,
-        "chemical spill": 2, "air quality issues": 1, "illegal dumping": 2
+        "pollution": 2, "air pollution": 2, "water pollution": 2, "soil contamination": 2,
+        "deforestation": 3, "biodiversity loss": 3, "habitat destruction": 3,
+        "water contamination": 2, "toxic waste": 3, "oil spill": 3, "chemical spill": 2,
+        "emissions violation": 2, "illegal logging": 3, "ecosystem destruction": 3,
+        "climate impact": 2, "greenhouse gas emissions": 2, "carbon emissions": 2,
+        "methane emissions": 2, "illegal dumping": 2, "waste mismanagement": 1,
+        "overconsumption": 1, "excessive packaging": 1, "resource depletion": 2,
+        "water overuse": 2, "negative impact": 3
     },
     "governance": {
-        "sanctions": 2, "fraud": 3, "corruption": 3, "bribery": 3, "money laundering": 3,
-        "regulatory violation": 2, "fines": 1, "illegal practices": 2, "lack of transparency": 2,
-        "anti-competitive behavior": 2, "governance failure": 2, "whistleblower retaliation": 2,
-        "non-compliance": 2
+        "sanctions": 2, "fraud": 3, "accounting fraud": 3, "corruption": 3,
+        "bribery": 3, "embezzlement": 3, "money laundering": 3,
+        "regulatory violation": 2, "fines": 1, "illegal practices": 2,
+        "lack of transparency": 2, "governance failure": 2,
+        "whistleblower retaliation": 2, "non-compliance": 2,
+        "anti-competitive behavior": 2, "insider trading": 2,
+        "misleading reporting": 2, "data breach": 2, "privacy violation": 2,
+        "cybersecurity failure": 2, "board conflicts of interest": 2
     }
 }
+
 
 # --- Diffbot Article Extractor ---
 def get_full_text(url):
