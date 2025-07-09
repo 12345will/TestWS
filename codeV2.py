@@ -2,8 +2,8 @@ import streamlit as st
 import requests
 from textblob import TextBlob
 import pandas as pd
-from bs4 import BeautifulSoup
 
+# --- Risk Keywords ---
 risk_keywords = {
     "labor": {
         "child labor": 3, "forced labor": 3, "unsafe working conditions": 2, "low wages": 1,
@@ -25,11 +25,13 @@ risk_keywords = {
     }
 }
 
+# --- Diffbot Article Extractor ---
 def get_full_text(url):
     try:
         DIFFBOT_TOKEN = "070489d54ba6e1dbb01ff6c8ca766530"
         api_url = f"https://api.diffbot.com/v3/article?token={DIFFBOT_TOKEN}&url={url}"
         response = requests.get(api_url, timeout=10)
+        response.raise_for_status()
         data = response.json()
         if "objects" in data and len(data["objects"]) > 0:
             return data["objects"][0].get("text", "")
@@ -37,6 +39,7 @@ def get_full_text(url):
     except Exception as e:
         return f"[Error extracting article text: {e}]"
 
+# --- Risk Assessment Function ---
 def assess_article(title, snippet, url, weights):
     full_text = get_full_text(url)
     combined_text = f"{title} {snippet} {full_text}".lower()
@@ -64,23 +67,32 @@ def assess_article(title, snippet, url, weights):
         "Title": title
     }
 
+# --- Google Programmable Search API ---
 GOOGLE_API_KEY = "AIzaSyCEWC7rZUu8EDPFeVtNsWrsdBv0HVcJ_dg"
 CSE_ID = "57a79da21c554499f"
 
 def search_articles(query):
-    url = "https://cse.google.com/cse?cx=57a79da21c554499f"
+    url = "https://www.googleapis.com/customsearch/v1"
     params = {
         "key": GOOGLE_API_KEY,
         "cx": CSE_ID,
         "q": query,
         "num": 10
     }
-    response = requests.get(url, params=params)
-    results = response.json().get("items", [])
-    return [{"title": item["title"], "link": item["link"], "snippet": item.get("snippet", "")} for item in results]
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+        return [{
+            "title": item.get("title"),
+            "link": item.get("link"),
+            "snippet": item.get("snippet", "")
+        } for item in data.get("items", [])]
+    except Exception as e:
+        print("Error fetching search results:", e)
+        return []
 
-
-# Streamlit app
+# --- Streamlit App UI ---
 st.set_page_config(page_title="Supplier Risk Assessment Tool", layout="wide")
 st.title("🔍 Supplier Risk Assessment Tool")
 
@@ -116,7 +128,7 @@ elif st.button("Run Risk Assessment"):
         for result in results:
             title = result.get("title", "")
             url = result.get("link", "")
-            snippet = result.get("snippet", "") or ""
+            snippet = result.get("snippet", "")
             assessment = assess_article(title, snippet, url, weights)
             articles.append(assessment)
 
