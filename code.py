@@ -27,28 +27,10 @@ risk_keywords = {
     }
 }
 
-def search_bhrrc(company_name, max_results=5):
-    query = company_name.replace(" ", "+")
-    url = f"https://www.business-humanrights.org/en/latest-news/?q={query}"
-    headers = {"User-Agent": "Mozilla/5.0"}
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        soup = BeautifulSoup(response.text, "html.parser")
-        articles = soup.select(".search-result__title")[:max_results]
-        results = []
-
-        for article in articles:
-            title = article.get_text(strip=True)
-            link = "https://www.business-humanrights.org" + article.find("a")["href"]
-            results.append({"title": title, "url": link})
-        return results
-    except Exception as e:
-        return []
-
 def get_full_text(url):
     try:
         headers = {"User-Agent": "Mozilla/5.0"}
-        response = requests.get(url, headers=headers, timeout=10)
+        response = requests.get(url, headers=headers, timeout=4)
         soup = BeautifulSoup(response.content, "html.parser")
         paragraphs = soup.find_all('p')
         text = " ".join([p.get_text() for p in paragraphs])
@@ -88,7 +70,7 @@ def search_articles(query):
         "q": query,
         "api_key": SERPAPI_API_KEY,
         "engine": "google",
-        "num": 10
+        "num": 5
     }
     response = requests.get("https://serpapi.com/search", params=params)
     return response.json().get("organic_results", [])
@@ -135,14 +117,6 @@ elif st.button("Run Risk Comparison"):
                 assessment = assess_article(title, snippet, url, weights)
                 articles.append(assessment)
 
-            bhrrc_results = search_bhrrc(supplier)
-            bhrrc_count = len(bhrrc_results)
-            bhrrc_flag = "✅"
-            if bhrrc_count >= 3:
-                bhrrc_flag = "🟥"
-            elif bhrrc_count >= 1:
-                bhrrc_flag = "🟨"
-
             if articles:
                 df = pd.DataFrame(articles)
                 summary.append({
@@ -153,14 +127,11 @@ elif st.button("Run Risk Comparison"):
                     "Avg Risk Score": round(df["Weighted Risk Score"].mean(), 2),
                     "Worst Article Score": df["Weighted Risk Score"].max(),
                     "Best Article Score": df["Weighted Risk Score"].min(),
-                    "Article Count": len(df),
-                    "BHRRC Mentions": bhrrc_flag,
-                    "BHRRC Results": bhrrc_results  # <-- Fixed name and comma
+                    "Article Count": len(df)
                 })
                 st.dataframe(df.sort_values(by="Weighted Risk Score", ascending=False))
             else:
                 st.warning(f"No articles found for {supplier}.")
-
 
         if summary:
             st.markdown("## 🧾 Final Supplier Risk Summary (Avg Score Weighted by Category)")
@@ -181,19 +152,8 @@ elif st.button("Run Risk Comparison"):
 - **Environmental Risk:** {row['Environmental Avg']} / 10  
 - **Governance Risk:** {row['Governance Avg']} / 10  
 - **→ Total Weighted Risk Score:** **{row['Avg Risk Score']} / 10** {interpret(row['Avg Risk Score'])}
-- **BHRRC Mentions:** {row['BHRRC Mentions']}
 """)
 
             st.markdown("### 🏁 **Final Ranking (Lowest to Highest Risk):**")
             for i, row in summary_df.iterrows():
-                st.write(f"{i+1}. **{row['Supplier']}** — Score: {row['Avg Risk Score']} {interpret(row['Avg Risk Score'])} | BHRRC: {row['BHRRC Mentions']}")
-                
-                bhrrc_list = row.get("BHRRC Results", [])
-                if bhrrc_list:
-                    st.markdown("**🔗 BHRRC Mentions:**")
-                    for entry in bhrrc_list:
-                        st.markdown(f"- [{entry['title']}]({entry['url']})")
-                else:
-                    st.markdown("**🔗 BHRRC Mentions:** None found")
-
-
+                st.write(f"{i+1}. **{row['Supplier']}** — Score: {row['Avg Risk Score']} {interpret(row['Avg Risk Score'])}")
