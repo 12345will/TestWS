@@ -88,7 +88,7 @@ def search_articles(query):
         "key": GOOGLE_API_KEY,
         "cx": CSE_ID,
         "q": query,
-        "num": 10
+        "num": 3
     }
     try:
         response = requests.get(url, params=params)
