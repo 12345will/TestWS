@@ -139,6 +139,11 @@ with col3:
 
 if labor_weight + env_weight + gov_weight != 100:
     st.warning("⚠️ Weights must total 100%.")
+
+show_all = st.checkbox("Show articles even if no ESG risk detected", value=False)
+
+if labor_weight + env_weight + gov_weight != 100:
+    st.warning("⚠️ Weights must total 100%.")
 elif st.button("Run Risk Assessment"):
     if not supplier or not material:
         st.error("Please enter a supplier and a material.")
@@ -159,7 +164,8 @@ elif st.button("Run Risk Assessment"):
             url = result.get("link", "")
             snippet = result.get("snippet", "")
             assessment = assess_article(title, snippet, url, weights)
-            if assessment["Weighted Risk Score"] > 0:
+
+            if show_all or assessment["Weighted Risk Score"] > 0:
                 articles.append(assessment)
 
         if articles:
@@ -178,4 +184,4 @@ elif st.button("Run Risk Assessment"):
 - **→ Total Weighted Risk Score:** **{avg_risk} / 10** {interpret(avg_risk)}
 """)
         else:
-            st.warning(f"No high-risk articles found for {supplier}.")
+            st.warning("No articles matched your criteria.")
