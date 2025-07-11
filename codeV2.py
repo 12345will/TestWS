@@ -101,25 +101,58 @@ GOOGLE_API_KEY = "AIzaSyCEWC7rZUu8EDPFeVtNsWrsdBv0HVcJ_dg"
 CSE_ID = "57a79da21c554499f"
 
 def search_articles(query):
+    preferred_sources = [
+        "site:business-humanrights.org",
+        "site:ejatlas.org",
+        "site:climatecasechart.com/non-us-climate-change-litigation"
+    ]
+    
+    all_results = []
+
     url = "https://www.googleapis.com/customsearch/v1"
-    params = {
-        "key": GOOGLE_API_KEY,
-        "cx": CSE_ID,
-        "q": query,
-        "num": 10
-    }
-    try:
-        response = requests.get(url, params=params)
-        response.raise_for_status()
-        data = response.json()
-        return [{
-            "title": item.get("title"),
-            "link": item.get("link"),
-            "snippet": item.get("snippet", "")
-        } for item in data.get("items", [])]
-    except Exception as e:
-        print("Error fetching search results:", e)
-        return []
+    for source in preferred_sources:
+        full_query = f"{query} {source}"
+        params = {
+            "key": GOOGLE_API_KEY,
+            "cx": CSE_ID,
+            "q": full_query,
+            "num": 5  # limit to 5 from each source
+        }
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            results = [{
+                "title": item.get("title"),
+                "link": item.get("link"),
+                "snippet": item.get("snippet", "")
+            } for item in data.get("items", [])]
+            all_results.extend(results)
+        except Exception as e:
+            print(f"Error fetching from {source}: {e}")
+            continue
+
+    # Fallback: do a general Google search if preferred sources return nothing
+    if not all_results:
+        params = {
+            "key": GOOGLE_API_KEY,
+            "cx": CSE_ID,
+            "q": query,
+            "num": 10
+        }
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            all_results = [{
+                "title": item.get("title"),
+                "link": item.get("link"),
+                "snippet": item.get("snippet", "")
+            } for item in data.get("items", [])]
+        except Exception as e:
+            print("Fallback search error:", e)
+
+    return all_results
 
 # --- Streamlit App ---
 st.set_page_config(page_title="Supplier Risk Assessment Tool", layout="wide")
